@@ -394,6 +394,25 @@ exports.getScriptFeed = (req, res, next) => {
 };//end of .getScript
 
 
+/**
+ * Google Vision API
+ */
+async function visionAI(filename) {
+  // Imports the Google Cloud client library
+  const vision = require('@google-cloud/vision');
+
+  // Creates a client
+  const client = new vision.ImageAnnotatorClient();
+
+  // Performs label detection on the image file
+  const [result] = await client.labelDetection(filename);
+  const labels = result.labelAnnotations;
+  console.log('Labels:');
+  labels.forEach(label => console.log(label.description));
+}
+
+
+
 /*
 ##############
 NEW POST
@@ -440,6 +459,9 @@ exports.newPost = (req, res) => {
     {
       console.log("Text PICTURE of Post is "+req.file.filename);
       post.picture = req.file.filename;
+
+      console.log("filename",req.file.filename);
+      visionAI("./uploads/user_post/IMG_1462.jpeg");
 
       user.numPosts = user.numPosts + 1;
       post.postID = user.numPosts;
