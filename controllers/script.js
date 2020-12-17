@@ -409,9 +409,9 @@ async function visionAI(filename) {
   const labels = result.labelAnnotations;
   console.log('Labels:');
   labels.forEach(label => {
-    console.log(label.description);
-    if (label.description === 'Food' || label.description === 'Dish') {
-      Label = 'food';
+    console.log(label.description + " " + label.score);
+    if (label.score > 0.8) {
+      Label.push(label.description.charAt(0).toLowerCase() + label.description.slice(1));
     }
   });
 }
@@ -467,7 +467,7 @@ exports.newPost = (req, res) => {
 
       console.log("filename",req.file.filename);
       // reset label
-      Label = 'default';
+      Label = ['default'];
       await visionAI("./uploads/user_post/" + req.file.filename);
 
       user.numPosts = user.numPosts + 1;
@@ -477,10 +477,9 @@ exports.newPost = (req, res) => {
       
       console.log(Label);
       //Now we find any Actor Replies (Comments) that go along with it
-      Notification.find()
+      Notification.find({ label: { $in: Label } })
         .where('userPost').equals(post.postID)
         .where('notificationType').equals('reply')
-        .where('label').equals(Label)
         .populate('actor')
         .exec(function (err, actor_replies) {
           if (err) { return next(err); }
