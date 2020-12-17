@@ -230,7 +230,10 @@ async function doPopulate() {
                     notifydetail.replyBody = new_notify.body;
                     notifydetail.time = timeStringToNum(new_notify.time);
 
+                    //console.log(notifydetail);
                     var notify = new Notification(notifydetail);
+                    // add label
+                    notify.label = new_notify.label;
                     notify.save(function (err) {
                         if (err) {
                             console.log("Something went wrong in Saving Notify Actor reply!!!");

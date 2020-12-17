@@ -15,6 +15,7 @@ const notificationSchema = new mongoose.Schema({
   time: Number, //in millisecons
   replyBody: {type: String, default: '', trim: true},//body of actor's reply
   //reply: {type: Schema.ObjectId, ref: 'Script'} //this will need to be something else (like the actual user post I guess?)
+  label: {type: String, default: 'default'}, //(default, food)
   
 }, { timestamps: true });
 

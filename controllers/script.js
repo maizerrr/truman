@@ -408,7 +408,12 @@ async function visionAI(filename) {
   const [result] = await client.labelDetection(filename);
   const labels = result.labelAnnotations;
   console.log('Labels:');
-  labels.forEach(label => console.log(label.description));
+  labels.forEach(label => {
+    console.log(label.description);
+    if (label.description === 'Food' || label.description === 'Dish') {
+      Label = 'food';
+    }
+  });
 }
 
 
@@ -420,7 +425,7 @@ NEW POST
 */
 exports.newPost = (req, res) => {
 
-  User.findById(req.user.id, (err, user) => {
+  User.findById(req.user.id, async function (err, user) {
     if (err) { return next(err); }
 
     //var lastFive = user.id.substr(user.id.length - 5);
@@ -461,18 +466,21 @@ exports.newPost = (req, res) => {
       post.picture = req.file.filename;
 
       console.log("filename",req.file.filename);
-      visionAI("./uploads/user_post/IMG_1462.jpeg");
+      // reset label
+      Label = 'default';
+      await visionAI("./uploads/user_post/" + req.file.filename);
 
       user.numPosts = user.numPosts + 1;
       post.postID = user.numPosts;
       post.type = "user_post";
       post.comments = [];
       
-
+      console.log(Label);
       //Now we find any Actor Replies (Comments) that go along with it
       Notification.find()
         .where('userPost').equals(post.postID)
         .where('notificationType').equals('reply')
+        .where('label').equals(Label)
         .populate('actor')
         .exec(function (err, actor_replies) {
           if (err) { return next(err); }
@@ -484,6 +492,7 @@ exports.newPost = (req, res) => {
 
             //console.log("@@@@@@@We have Actor Comments to add: "+actor_replies.length);
             for (var i = 0, len = actor_replies.length; i < len; i++) {
+              console.log(actor_replies[i].replyBody);
               var tmp_actor_reply = new Object();
 
               //actual actor reply information
