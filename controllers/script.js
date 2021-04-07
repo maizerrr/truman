@@ -409,11 +409,11 @@ async function visionAI(filename) {
   const labels = result.labelAnnotations;
   console.log('Labels:');
   labels.forEach(label => {
-    console.log(label.description);
-    //if (label.description === 'Food' || label.description === 'Dish') {
-    //  Label = 'food';
-    //}
-    Label.push(label.description);
+
+    console.log(label.description + " " + label.score);
+    if (label.score > 0.8) {
+      Label.push(label.description.charAt(0).toLowerCase() + label.description.slice(1));
+    }
   });
 }
 
