@@ -410,9 +410,10 @@ async function visionAI(filename) {
   console.log('Labels:');
   labels.forEach(label => {
     console.log(label.description);
-    if (label.description === 'Food' || label.description === 'Dish') {
-      Label = 'food';
-    }
+    //if (label.description === 'Food' || label.description === 'Dish') {
+    //  Label = 'food';
+    //}
+    Label.push(label.description);
   });
 }
 
@@ -467,23 +468,30 @@ exports.newPost = (req, res) => {
 
       console.log("filename",req.file.filename);
       // reset label
-      Label = 'default';
+      Label = ['default'];
       await visionAI("./uploads/user_post/" + req.file.filename);
+      //if (Label.length === 0) {
+      //  Label = ['default'];
+      //}
+      console.log("Label", Label);
+      //console.log("Includes", Label.includes('default'));
 
       user.numPosts = user.numPosts + 1;
       post.postID = user.numPosts;
       post.type = "user_post";
       post.comments = [];
       
-      console.log(Label);
       //Now we find any Actor Replies (Comments) that go along with it
-      Notification.find()
+      Notification.find( { label: {$in: Label} } )
         .where('userPost').equals(post.postID)
         .where('notificationType').equals('reply')
-        .where('label').equals(Label)
+        //.where(function() { return (Label.includes(this.label)) })
         .populate('actor')
         .exec(function (err, actor_replies) {
-          if (err) { return next(err); }
+          if (err) { 
+            console.log(err);
+            return next(err); 
+          }
           //console.log("%^%^%^^%INSIDE NOTIFICATION&^&^&^&^&^&^&");
           if (actor_replies.length > 0)
           {
