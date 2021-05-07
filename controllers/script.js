@@ -407,14 +407,51 @@ async function visionAI(filename) {
   // Performs label detection on the image file
   const [result] = await client.labelDetection(filename);
   const labels = result.labelAnnotations;
-  console.log('Labels:');
+  //console.log('Labels:');
   labels.forEach(label => {
 
-    console.log(label.description + " " + label.score);
+    //console.log(label.description + " " + label.score);
     if (label.score > 0.8) {
       Label.push(label.description.charAt(0).toLowerCase() + label.description.slice(1));
     }
   });
+}
+
+/**
+ * Google Natral Language API
+ */
+async function languageAI(text) {
+  // Imports the Google Cloud client library
+  const language = require('@google-cloud/language');
+
+  // Creates a client
+  const client = new language.LanguageServiceClient();
+
+  /**
+   * TODO(developer): Uncomment the following line to run this code.
+   */
+  // const text = 'Your text to analyze, e.g. Hello, world!';
+
+  // Prepares a document, representing the provided text
+  const document = {
+    content: text,
+    type: 'PLAIN_TEXT',
+  };
+
+  // Classifies text in the document
+  try {
+    const [classification] = await client.classifyText({document});
+    //console.log('Categories:');
+    classification.categories.forEach(category => {
+      //console.log(`Name: ${category.name}, Confidence: ${category.confidence}`);
+      if (category.confidence > 0.5) {
+        res = category.name.split(/[^A-Za-z]/).filter(i => i);
+        res.forEach(element => { Category.push(element.charAt(0).toLowerCase() + element.slice(1)) });
+      }
+    });
+  } catch (e) {
+    console.log("languageAI Error", e);
+  }
 }
 
 
@@ -467,14 +504,13 @@ exports.newPost = (req, res) => {
       post.picture = req.file.filename;
 
       console.log("filename",req.file.filename);
-      // reset label
+      // reset label & catagory
       Label = ['default'];
+      Category = [];
       await visionAI("./uploads/user_post/" + req.file.filename);
-      //if (Label.length === 0) {
-      //  Label = ['default'];
-      //}
-      console.log("Label", Label);
-      //console.log("Includes", Label.includes('default'));
+      await languageAI(req.body.body);
+      console.log("Img Labels", Label);
+      console.log("Text Categories", Category);
 
       user.numPosts = user.numPosts + 1;
       post.postID = user.numPosts;
