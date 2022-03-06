@@ -1,6 +1,19 @@
 Truman Platform 
 =======================
 
+Updated Version: fix the inconsistency problem in notification
+
+Changes Applied: 
+
+ 1.controllers/notification.js
+  * added a while loop for identification
+  * added a if statement to filter valid reply
+ 
+ 2.models/Notification.js
+  * added a boolean variable to store value
+
+=======================
+
 The Truman Platform is a fake social network for real results. This fake social network application allows researchers to create interesting and believable scenarios in a social network environment. Since the interactions that take place in a social setting and influence the outcome of an experiment, all content, users, interactions and notifications are “fake” and created by a set of digital actors. Each participant sees the same interactions and conversations, believe these to be unique to them. 
 
 This allows any experiment to be completely replicated, and the tools can be repurposed for other studies. 
