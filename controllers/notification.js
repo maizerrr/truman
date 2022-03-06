@@ -108,6 +108,7 @@ exports.getNotifications = (req, res) => {
               //console.log("Looking at user post number: "+ userPostID)
               var user_post = user.getUserPostByID(userPostID);
               
+              
               //!!!!!!!!@@@@@@@@@@@@@@@This needs to change ()
               var time_diff = Date.now() - user_post.absTime;
 
@@ -144,6 +145,7 @@ exports.getNotifications = (req, res) => {
                     read_tmp.time = Date.parse(user_post.absTime) + notification_feed[i].time;
                     console.log("TIME  is");
                     console.log(read_tmp.time)
+                    console.log()
                     read_tmp.actors = [];
                     read_tmp.actors.push(notification_feed[i].actor);
 
@@ -208,7 +210,6 @@ exports.getNotifications = (req, res) => {
                   var replyKey = "actorReply_"+ userPostID;
 
                   console.log("Now creating REPLY");
-
                   let reply_tmp = {};
                   reply_tmp.key = replyKey;
                   reply_tmp.action = 'reply';
@@ -216,11 +217,23 @@ exports.getNotifications = (req, res) => {
                   reply_tmp.body = user_post.body;//OBody
                   reply_tmp.picture = user_post.picture;//OPicture
                   reply_tmp.replyBody = notification_feed[i].replyBody;//replybody
+                  //check each comment in post comments array to find if matched reply existed
+                  var j = 0;
+                  while(j<user_post.comments.length){
+                    if(reply_tmp.replyBody.localeCompare(user_post.comments[j].body) == 0){
+                      notification_feed[i].labelSelected = true;
+                      break;
+                    }
+                    else{j++;}
+                  }
+                  //reply_tmp.label = notification_feed[i].lable;//label
                   reply_tmp.time = Date.parse(user_post.absTime) + notification_feed[i].time;
                   reply_tmp.Originaltime = user_post.relativeTime;
                   reply_tmp.actor = notification_feed[i].actor;//reply Actor
-
-                  final_notify.push(reply_tmp);
+                  // check if it the reply is selected before sending out notification
+                  if(notification_feed[i].labelSelected == true){
+                    final_notify.push(reply_tmp);
+                  }
                 }//end of REPLY
 
               }//end of check for time_diff
