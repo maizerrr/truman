@@ -418,6 +418,29 @@ async function visionAI(filename) {
 }
 
 /**
+ * Google Face API
+ */
+ async function faceAI(filename) {
+  // Imports the Google Cloud client library
+  const vision = require('@google-cloud/vision');
+
+  // Creates a client
+  const client = new vision.ImageAnnotatorClient();
+
+  // Performs label detection on the image file
+  const [result] = await client.faceDetection(filename);
+  const sentiments = result.faceAnnotations;
+  //console.log('Labels:');
+  sentiments.forEach(sentiment => {
+
+    console.log(sentiment);
+    if (sentiment.sorrowLikelihood != "VERY_UNLIKELY") {
+      SentiLabel.push("sad");
+    }
+  });
+}
+
+/**
  * Google Natral Language API
  */
 async function languageAI(text) {
@@ -507,10 +530,13 @@ exports.newPost = (req, res) => {
       // reset label & catagory
       Label = ['default'];
       Category = [];
+      SentiLabel = [];
       await visionAI("./uploads/user_post/" + req.file.filename);
-      await languageAI(req.body.body);
+      await faceAI("./uploads/user_post/" + req.file.filename);
+      //await languageAI(req.body.body);
       console.log("Img Labels", Label);
       console.log("Text Categories", Category);
+      console.log("Sentiment Labels", SentiLabel);
 
       user.numPosts = user.numPosts + 1;
       post.postID = user.numPosts;
@@ -519,6 +545,7 @@ exports.newPost = (req, res) => {
       
       //Now we find any Actor Replies (Comments) that go along with it
       Notification.find( { label: {$in: Label} } )
+        .where('senti_label').equals(SentiLabel)
         .where('userPost').equals(post.postID)
         .where('notificationType').equals('reply')
         //.where(function() { return (Label.includes(this.label)) })
@@ -537,6 +564,7 @@ exports.newPost = (req, res) => {
             //console.log("@@@@@@@We have Actor Comments to add: "+actor_replies.length);
             for (var i = 0, len = actor_replies.length; i < len; i++) {
               console.log(actor_replies[i].replyBody);
+              console.log(actor_replies[i]);
               var tmp_actor_reply = new Object();
 
               //actual actor reply information
@@ -545,6 +573,9 @@ exports.newPost = (req, res) => {
               //might need to change to above
               user.numActorReplies = user.numActorReplies + 1;
               tmp_actor_reply.commentID = user.numActorReplies;
+              //tmp_actor_reply.label = Label;
+              //actor_replies[i].labelSelected = true;
+              //tmp_actor_reply.labelSelected = actor_replies[i].labelSelected;
               tmp_actor_reply.actor = actor_replies[i].actor;
 
               tmp_actor_reply.time = post.relativeTime + actor_replies[i].time;

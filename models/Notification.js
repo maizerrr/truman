@@ -15,9 +15,9 @@ const notificationSchema = new mongoose.Schema({
   time: Number, //in millisecons
   replyBody: {type: String, default: '', trim: true},//body of actor's reply
   //reply: {type: Schema.ObjectId, ref: 'Script'} //this will need to be something else (like the actual user post I guess?)
-  labelSelected: {type: Boolean, default: false},
+  //labelSelected: {type: Boolean, default: false},
   //TO DO: add another variable for senti_lable
-  senti_label: {type: String, default: 'default'},
+  //senti_label: {type: String, default: 'default'},
 }, { timestamps: true });
 
 
