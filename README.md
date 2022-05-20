@@ -1,5 +1,6 @@
 Truman Platform 
 =======================
+12/15/2021
 
 Updated Version: fix the inconsistency problem in notification
 
@@ -12,6 +13,20 @@ Changes Applied:
  2.models/Notification.js
   * added a boolean variable to store value
 
+=======================
+05/19/2022
+
+Updated Version: implement Google API to recognize face expressions in post picture to aid actor's reply
+
+Changes Applied: 
+
+ 1.controllers/script.js
+  * added a Google Face API function
+  * implement the Google Face API function in Notification.find() function
+ 
+ 2.models/Notification.js
+  * added a string variable to store sentiment-label
+  
 =======================
 
 The Truman Platform is a fake social network for real results. This fake social network application allows researchers to create interesting and believable scenarios in a social network environment. Since the interactions that take place in a social setting and influence the outcome of an experiment, all content, users, interactions and notifications are “fake” and created by a set of digital actors. Each participant sees the same interactions and conversations, believe these to be unique to them. 
